@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configuration Management — Dashboard Platform</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="overview.html" class="navbar-brand">
+      <span class="status-dot status-online"></span>
+      Industrial Monitor
+    </a>
+    <div class="nav-links" id="nav-links"></div>
+    <div class="nav-right">
+      <span id="nav-username" style="font-weight: 500;"></span>
+      <span id="nav-role" class="text-muted" style="font-size: 0.8rem;"></span>
+      <button id="logout-btn" class="btn btn-secondary btn-sm">Logout</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="d-flex justify-between align-center mb-4">
+      <div>
+        <h2>Edge Device Configuration Versions</h2>
+        <p class="text-muted">Immutable versioning for ROI, crossing direction, sensitivity thresholds, and models (B7)</p>
+      </div>
+      <div style="display: flex; gap: 0.5rem;">
+        <select id="select-config-device" class="form-control" style="width: 200px;"></select>
+        <button id="btn-new-draft" class="btn btn-primary">+ Propose New Version</button>
+      </div>
+    </div>
+
+    <!-- Active Approved Configuration Preview -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h3 class="card-title">Currently Approved &amp; Published Configuration</h3>
+        <span class="badge success" id="active-version-tag">Version -</span>
+      </div>
+      <p class="text-muted" style="font-size: 0.875rem;">This payload is actively fetched by the edge vision daemon at <code>GET /api/v1/config/{device_id}</code>.</p>
+      <pre class="json-view mt-4" id="active-config-json">// Loading active configuration...</pre>
+    </div>
+
+    <!-- Configuration History Table -->
+    <div class="card">
+      <h3 class="card-title mb-4">Version History &amp; Approval Audit Trail</h3>
+      <div class="table-container">
+        <table id="table-config-versions">
+          <thead>
+            <tr>
+              <th>Config ID</th>
+              <th>Version</th>
+              <th>Status</th>
+              <th>Created By</th>
+              <th>Created At</th>
+              <th>Approved By</th>
+              <th>Approved At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal: Propose New Version Draft -->
+    <div id="modal-draft" class="modal-overlay hidden">
+      <div class="modal-content" style="max-width: 600px;">
+        <h3 class="modal-title">Propose New Configuration Version</h3>
+        <p class="text-muted mb-4" style="font-size: 0.875rem;">New versions are created as drafts and never overwrite historical configurations.</p>
+        
+        <form id="form-create-draft">
+          <div class="form-group">
+            <label class="form-label">Version Identifier (e.g. 1.1.0)</label>
+            <input type="text" id="draft-version" class="form-control" required placeholder="1.1.0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Crossing Direction</label>
+            <select id="draft-direction" class="form-control">
+              <option value="forward">forward</option>
+              <option value="reverse">reverse</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confidence Threshold (0.0 - 1.0)</label>
+            <input type="number" id="draft-confidence" class="form-control" step="0.01" min="0.5" max="1.0" value="0.88">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Model Version Name</label>
+            <input type="text" id="draft-model" class="form-control" value="parts-yolo-1.3.1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">ROI Box (JSON Coordinates)</label>
+            <textarea id="draft-roi" class="form-control" rows="3" style="font-family: monospace;">{"x_min": 120, "y_min": 80, "x_max": 520, "y_max": 400}</textarea>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" id="btn-cancel-draft" class="btn btn-secondary">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Draft</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/config.js"></script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shift & Batch Reports — Dashboard Platform</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="overview.html" class="navbar-brand">
+      <span class="status-dot status-online"></span>
+      Industrial Monitor
+    </a>
+    <div class="nav-links" id="nav-links"></div>
+    <div class="nav-right">
+      <span id="nav-username" style="font-weight: 500;"></span>
+      <span id="nav-role" class="text-muted" style="font-size: 0.8rem;"></span>
+      <button id="logout-btn" class="btn btn-secondary btn-sm">Logout</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="d-flex justify-between align-center mb-4">
+      <div>
+        <h2>Shift & Batch Production Reports</h2>
+        <p class="text-muted">Target reconciliation, hourly throughput, and quality confidence breakdown (B5)</p>
+      </div>
+      <div class="tabs" style="margin-bottom: 0;">
+        <div class="tab active" id="tab-shift">Shift Report</div>
+        <div class="tab" id="tab-batch">Batch Reconciliation</div>
+      </div>
+    </div>
+
+    <!-- Shift Report Section -->
+    <div id="section-shift">
+      <div class="filter-bar">
+        <div class="filter-item">
+          <label class="form-label">Shift</label>
+          <select id="select-shift" class="form-control"></select>
+        </div>
+        <div class="filter-item">
+          <label class="form-label">Production Line</label>
+          <select id="select-shift-line" class="form-control">
+            <option value="">All Lines</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label class="form-label">Date</label>
+          <input type="date" id="select-shift-date" class="form-control">
+        </div>
+        <div style="flex: 0;">
+          <button id="btn-load-shift" class="btn btn-primary">Generate Report</button>
+        </div>
+      </div>
+
+      <div class="grid mb-4">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">Actual vs Target Count</h4>
+          </div>
+          <div class="d-flex justify-between align-center">
+            <div>
+              <div class="text-muted" style="font-size: 0.875rem;">Produced / Planned</div>
+              <div class="card-value" id="val-shift-counts">0 / 0</div>
+            </div>
+            <div style="text-align: right;">
+              <div class="text-muted" style="font-size: 0.875rem;">Completion</div>
+              <div class="card-value" style="color: #34d399;" id="val-shift-completion">0%</div>
+            </div>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-shift" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">Quality & Void Discrepancies</h4>
+          </div>
+          <div class="d-flex justify-between mt-4">
+            <div>
+              <div class="text-muted" style="font-size: 0.875rem;">Manually Voided</div>
+              <div class="card-value" style="color: #f87171;" id="val-shift-voided">0</div>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size: 0.875rem;">Suspected Events</div>
+              <div class="card-value" style="color: #fbbf24;" id="val-shift-suspected">0</div>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size: 0.875rem;">Alert Incidents</div>
+              <div class="card-value" id="val-shift-alerts">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h4 class="card-title">Target Run Rate</h4>
+          </div>
+          <div class="text-muted" style="font-size: 0.875rem;">Hourly Target</div>
+          <div class="card-value" id="val-shift-rate">125 / hr</div>
+          <p class="text-muted" style="font-size: 0.8rem;">Required pace to achieve planned shift volume</p>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <h4 class="card-title mb-4">Hourly Production Throughput (Parts / Hour)</h4>
+        <div class="bar-chart" id="chart-hourly"></div>
+      </div>
+
+      <div class="card">
+        <h4 class="card-title mb-4">AI Model Confidence Distribution</h4>
+        <div class="grid">
+          <div style="background: rgba(16,185,129,0.05); padding: 1rem; border-radius: 0.5rem; border: 1px solid rgba(16,185,129,0.2);">
+            <span class="badge success">High Confidence (&ge; 95%)</span>
+            <div class="card-value mt-4" style="color: #34d399;" id="conf-high">0</div>
+            <div class="text-muted" style="font-size: 0.8rem;">Clear, unobstructed crossing events</div>
+          </div>
+          <div style="background: rgba(245,158,11,0.05); padding: 1rem; border-radius: 0.5rem; border: 1px solid rgba(245,158,11,0.2);">
+            <span class="badge warning">Medium Confidence (90 - 95%)</span>
+            <div class="card-value mt-4" style="color: #fbbf24;" id="conf-med">0</div>
+            <div class="text-muted" style="font-size: 0.8rem;">Partial edge glare or shadow presence</div>
+          </div>
+          <div style="background: rgba(239,68,68,0.05); padding: 1rem; border-radius: 0.5rem; border: 1px solid rgba(239,68,68,0.2);">
+            <span class="badge danger">Suspected / Low (&lt; 90%)</span>
+            <div class="card-value mt-4" style="color: #f87171;" id="conf-low">0</div>
+            <div class="text-muted" style="font-size: 0.8rem;">Flagged for supervisor evidence review</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Batch Report Section -->
+    <div id="section-batch" class="hidden">
+      <div class="filter-bar">
+        <div class="filter-item">
+          <label class="form-label">Batch Work Order</label>
+          <select id="select-batch" class="form-control"></select>
+        </div>
+        <div style="flex: 0;">
+          <button id="btn-load-batch" class="btn btn-primary">Reconcile Batch</button>
+        </div>
+      </div>
+
+      <div class="grid mb-4">
+        <div class="card">
+          <h4 class="card-title mb-2">Batch Progress</h4>
+          <div class="text-muted" id="batch-product-name" style="font-size: 0.875rem;">Product</div>
+          <div class="d-flex justify-between align-center mt-4">
+            <div class="card-value" id="val-batch-counts">0 / 0</div>
+            <div class="card-value" style="color: #34d399;" id="val-batch-completion">0%</div>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-batch" style="width: 0%;"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h4 class="card-title mb-2">Quality Reconciliation</h4>
+          <div class="text-muted" style="font-size: 0.875rem;">Audited Voids</div>
+          <div class="card-value" style="color: #f87171;" id="val-batch-voided">0</div>
+          <div class="text-muted" style="font-size: 0.8rem;">Excluded from certified bill of lading</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4 class="card-title mb-4">Class Breakdown for Batch</h4>
+        <div class="table-container">
+          <table id="table-batch-classes">
+            <thead>
+              <tr>
+                <th>Part Class</th>
+                <th>Quantity Accepted</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/reports.js"></script>
+</body>
+</html>

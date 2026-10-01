@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Line Overview — Dashboard Platform</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/overview.html" class="navbar-brand">
+      <span id="ws-status-dot" class="status-dot status-offline" title="Connecting..."></span>
+      Industrial Monitor
+    </a>
+    <div class="nav-links" id="nav-links"></div>
+    <div class="nav-right">
+      <span id="nav-username" style="font-weight: 500;"></span>
+      <span id="nav-role" class="text-muted" style="font-size: 0.8rem;"></span>
+      <button id="logout-btn" class="btn btn-secondary btn-sm">Logout</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="d-flex justify-between align-center mb-4">
+      <div>
+        <h2>Multi-Line Plant Overview</h2>
+        <p class="text-muted">Real-time conveyor monitoring, rolling rates, and device states (B2, B3)</p>
+      </div>
+      <div class="text-muted" style="font-size: 0.875rem;">
+        Last updated: <span id="last-updated">Never</span>
+      </div>
+    </div>
+    
+    <div id="lines-grid" class="grid">
+      <div class="loader"></div>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/ws.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/overview.js"></script>
+</body>
+</html>

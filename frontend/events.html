@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Explorer — Dashboard Platform</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/overview.html" class="navbar-brand">
+      <span id="ws-status-dot" class="status-dot status-offline" title="Connecting..."></span>
+      Industrial Monitor
+    </a>
+    <div class="nav-links" id="nav-links"></div>
+    <div class="nav-right">
+      <span id="nav-username" style="font-weight: 500;"></span>
+      <span id="nav-role" class="text-muted" style="font-size: 0.8rem;"></span>
+      <button id="logout-btn" class="btn btn-secondary btn-sm">Logout</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="d-flex justify-between align-center mb-4">
+      <div>
+        <h2>Event Explorer</h2>
+        <p class="text-muted">Search raw events by line, device, class, status, and audit void discrepancies (B4, B8)</p>
+      </div>
+      <div>
+        <button id="btn-export" class="btn btn-secondary">Export Filtered CSV</button>
+      </div>
+    </div>
+    
+    <div class="filter-bar" id="filter-form">
+      <div class="filter-item">
+        <label class="form-label">Line</label>
+        <select id="filter-line" class="form-control">
+          <option value="">All Lines</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label class="form-label">Device</label>
+        <select id="filter-device" class="form-control">
+          <option value="">All Devices</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label class="form-label">Status</label>
+        <select id="filter-status" class="form-control">
+          <option value="">All Status</option>
+          <option value="accepted">Accepted</option>
+          <option value="suspected">Suspected</option>
+          <option value="manually_voided">Manually Voided</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <label class="form-label">Part Class</label>
+        <input type="text" id="filter-class" class="form-control" placeholder="e.g. bearing-D">
+      </div>
+      <div class="filter-item">
+        <label class="form-label">From</label>
+        <input type="datetime-local" id="filter-from" class="form-control">
+      </div>
+      <div class="filter-item">
+        <label class="form-label">To</label>
+        <input type="datetime-local" id="filter-to" class="form-control">
+      </div>
+      <div class="d-flex" style="gap: 0.5rem; flex: 0;">
+        <button id="btn-search" class="btn btn-primary">Search</button>
+        <button id="btn-reset" class="btn btn-secondary">Reset</button>
+      </div>
+    </div>
+
+    <div class="table-container mb-4">
+      <table id="events-table">
+        <thead>
+          <tr>
+            <th>Event ID</th>
+            <th>Device</th>
+            <th>Line</th>
+            <th>Time (UTC)</th>
+            <th>Part Class</th>
+            <th>Qty</th>
+            <th>Confidence</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Rows -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="d-flex justify-between align-center">
+      <div class="text-muted">
+        Showing page <span id="page-num">1</span> (Total: <span id="total-results">0</span>)
+      </div>
+      <div class="d-flex" style="gap: 0.5rem;">
+        <button id="btn-prev" class="btn btn-secondary btn-sm" disabled>Previous</button>
+        <button id="btn-next" class="btn btn-secondary btn-sm" disabled>Next</button>
+      </div>
+    </div>
+
+    <!-- Modal: Audited Event Voiding (B8) -->
+    <div id="modal-void" class="modal-overlay hidden">
+      <div class="modal-content">
+        <h3 class="modal-title">Audited Event Void / Correction</h3>
+        <p class="text-muted mb-4" style="font-size: 0.875rem;">
+          The raw event will remain immutable in SQLite. A correction record will be logged with your signature.
+        </p>
+        <div class="form-group">
+          <label class="form-label">Event ID</label>
+          <input type="text" id="void-event-id" class="form-control" readonly style="background: var(--bg-dark);">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mandatory Correction Reason</label>
+          <textarea id="void-reason" class="form-control" rows="3" required placeholder="e.g. Conveyor belt test run, false double-trigger observed by supervisor"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button id="btn-cancel-void" class="btn btn-secondary">Cancel</button>
+          <button id="btn-confirm-void" class="btn btn-danger">Confirm Void</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/ws.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/events.js"></script>
+</body>
+</html>

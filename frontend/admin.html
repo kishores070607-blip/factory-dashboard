@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administration — Dashboard Platform</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/overview.html" class="navbar-brand">
+      <span id="ws-status-dot" class="status-dot status-offline" title="Connecting..."></span>
+      Industrial Monitor
+    </a>
+    <div class="nav-links" id="nav-links"></div>
+    <div class="nav-right">
+      <span id="nav-username" style="font-weight: 500;"></span>
+      <span id="nav-role" class="text-muted" style="font-size: 0.8rem;"></span>
+      <button id="logout-btn" class="btn btn-secondary btn-sm">Logout</button>
+    </div>
+  </nav>
+
+  <main class="container" id="admin-content" style="display: none;">
+    <h2 class="mb-4">System Administration &amp; Access Control</h2>
+    
+    <div class="grid" style="grid-template-columns: 2fr 1fr;">
+      <!-- Device Registry -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Registered Edge Devices</h3>
+          <button id="btn-refresh-devices" class="btn btn-secondary btn-sm">Refresh</button>
+        </div>
+        <div class="table-container">
+          <table id="devices-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Line</th>
+                <th>Status</th>
+                <th>Last Seen</th>
+                <th>Version</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Users & Roles -->
+      <div>
+        <div class="card mb-4">
+          <div class="card-header">
+            <h3 class="card-title">Users &amp; Roles</h3>
+          </div>
+          <div class="table-container mb-4">
+            <table id="users-table">
+              <thead>
+                <tr>
+                  <th>Username</th>
+                  <th>Role</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          
+          <div class="border-t pt-4" style="border-top: 1px solid var(--border-color); padding-top: 1rem;">
+            <h4 class="mb-4">Provision New User</h4>
+            <form id="add-user-form">
+              <div id="add-user-msg" class="hidden"></div>
+              <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" id="new-username" class="form-control" required placeholder="e.g. j_smith">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" id="new-password" class="form-control" required placeholder="••••••••">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Role Assignment</label>
+                <select id="new-role" class="form-control">
+                  <option value="operator">Operator (Line Monitor)</option>
+                  <option value="supervisor">Supervisor (Corrections, Targets &amp; Reports)</option>
+                  <option value="quality_engineer">Quality Engineer (Evidence &amp; Validation)</option>
+                  <option value="maintenance_engineer">Maintenance Engineer (Diagnostics &amp; Commands)</option>
+                  <option value="administrator">Administrator (Full Access)</option>
+                  <option value="auditor">Auditor (Read-Only Compliance)</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary" style="width: 100%;">Create User</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+  
+  <main class="container text-center mt-4 hidden" id="access-denied">
+    <h2 style="color: var(--color-danger)">Access Denied</h2>
+    <p class="text-muted mt-4">You do not have permission to view this page. Administrator role required.</p>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>
