@@ -1,4 +1,14 @@
+# Node & dependencies
 node_modules/
 data/
 .env
+
+# Python (legacy)
+venv/
+__pycache__/
+*.pyc
+
+# Local database & system files
 *.db
+factory.db
+.DS_Store
