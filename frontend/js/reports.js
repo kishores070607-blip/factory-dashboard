@@ -29,10 +29,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     const meta = await window.API.getReportMeta();
     const selectShift = document.getElementById('select-shift');
+    const currentHour = new Date().getUTCHours();
+    let defaultShiftId = 'SHIFT-1';
+    if (currentHour >= 14 && currentHour < 22) defaultShiftId = 'SHIFT-2';
+    else if (currentHour >= 22 || currentHour < 6) defaultShiftId = 'SHIFT-3';
+
     meta.shifts.forEach(s => {
       const opt = document.createElement('option');
       opt.value = s.shift_id;
       opt.textContent = s.name;
+      if (s.shift_id === defaultShiftId) opt.selected = true;
       selectShift.appendChild(opt);
     });
 
@@ -82,6 +88,30 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.getElementById('val-shift-suspected').textContent = m.suspectedCount;
       document.getElementById('val-shift-alerts').textContent = m.alertCount;
       document.getElementById('val-shift-rate').textContent = `${m.targetRatePerHour} / hr`;
+
+      const actualRateEl = document.getElementById('val-shift-actual-rate');
+      if (actualRateEl) actualRateEl.textContent = `${m.actualRatePerHour} / hr`;
+
+      const badgePace = document.getElementById('badge-pace-status');
+      const diffEl = document.getElementById('val-shift-rate-diff');
+      if (badgePace && diffEl) {
+        if (m.rateDifference >= 0) {
+          badgePace.className = 'badge success';
+          badgePace.textContent = 'Ahead of Target';
+          diffEl.style.color = '#34d399';
+          diffEl.textContent = `+${m.rateDifference} / hr vs target`;
+        } else {
+          badgePace.className = 'badge warning';
+          badgePace.textContent = 'Behind Target';
+          diffEl.style.color = '#fbbf24';
+          diffEl.textContent = `${m.rateDifference} / hr vs target`;
+        }
+      }
+
+      const etaEl = document.getElementById('val-shift-eta');
+      if (etaEl) {
+        etaEl.textContent = m.etaText || 'N/A';
+      }
 
       document.getElementById('conf-high').textContent = report.confidenceDistribution.high;
       document.getElementById('conf-med').textContent = report.confidenceDistribution.medium;

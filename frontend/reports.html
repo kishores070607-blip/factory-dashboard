@@ -95,14 +95,28 @@
         </div>
 
         <div class="card">
-          <div class="card-header">
-            <h4 class="card-title">Target Run Rate</h4>
+          <div class="card-header d-flex justify-between align-center">
+            <h4 class="card-title">Run Rate & Pace Forecast</h4>
+            <span id="badge-pace-status" class="badge success">On Track</span>
           </div>
-          <div class="metric-tile" style="margin-top: 1rem;">
-            <span class="metric-label">Hourly Target Rate</span>
-            <div class="metric-val" id="val-shift-rate">125 / hr</div>
+          <div class="metric-grid" style="grid-template-columns: 1fr 1fr; margin-top: 0.5rem;">
+            <div class="metric-tile" style="padding: 0.75rem 0.5rem;">
+              <span class="metric-label">Current Pace</span>
+              <div class="metric-val" id="val-shift-actual-rate" style="color: #34d399; font-size: 1.5rem;">-- / hr</div>
+              <div class="text-muted" id="val-shift-rate-diff" style="font-size: 0.75rem; margin-top: 0.25rem;">Calculating...</div>
+            </div>
+            <div class="metric-tile" style="padding: 0.75rem 0.5rem;">
+              <span class="metric-label">Target Rate</span>
+              <div class="metric-val" id="val-shift-rate" style="font-size: 1.5rem;">125 / hr</div>
+              <div class="text-muted" style="font-size: 0.75rem; margin-top: 0.25rem;">Required pace</div>
+            </div>
           </div>
-          <p class="text-muted mt-2" style="font-size: 0.8rem; text-align: center;">Required pace to achieve planned volume</p>
+          <div class="mt-3 p-2" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+            <div class="d-flex justify-between align-center">
+              <span class="text-muted" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Est. Target Completion:</span>
+              <strong id="val-shift-eta" style="color: var(--primary); font-size: 0.85rem;">Calculating...</strong>
+            </div>
+          </div>
         </div>
       </div>
 

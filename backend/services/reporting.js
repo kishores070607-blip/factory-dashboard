@@ -29,8 +29,20 @@ function getShiftReport(shiftId, date = null, lineId = null) {
     params.push(lineId);
   }
 
-  if (shift && shift.shift_id) {
-    eventQuery += ' AND (shift_id = ? OR shift_id IS NULL)';
+  // Filter strictly by shift hours so that metrics and hourly chart always align
+  if (shift && shift.start_time && shift.end_time) {
+    const startH = parseInt(shift.start_time.split(':')[0], 10);
+    const endH = parseInt(shift.end_time.split(':')[0], 10);
+    if (startH < endH) {
+      eventQuery += " AND time(event_time) >= time(?) AND time(event_time) < time(?)";
+      params.push(shift.start_time, shift.end_time);
+    } else {
+      // Overnight shift spanning midnight (e.g. 22:00 to 06:00)
+      eventQuery += " AND (time(event_time) >= time(?) OR time(event_time) < time(?))";
+      params.push(shift.start_time, shift.end_time);
+    }
+  } else if (shift && shift.shift_id) {
+    eventQuery += ' AND shift_id = ?';
     params.push(shift.shift_id);
   }
 
@@ -48,6 +60,7 @@ function getShiftReport(shiftId, date = null, lineId = null) {
 
   const actualCount = totalAcceptedRow ? totalAcceptedRow.total : 0;
   const targetCount = target.target_quantity || 1000;
+  const targetRate = target.target_rate_per_hour || 125.0;
   const completionPct = targetCount > 0 ? Number(((actualCount / targetCount) * 100).toFixed(1)) : 0;
 
   // Hourly throughput breakdown
@@ -85,6 +98,72 @@ function getShiftReport(shiftId, date = null, lineId = null) {
     count: hourlyMap.get(hour) || 0
   }));
 
+  // Calculate actual pace (rate per hour) & completion forecast (ETA)
+  const isToday = targetDate === new Date().toISOString().split('T')[0];
+  const nowUtcHour = new Date().getUTCHours();
+  const nowUtcMin = new Date().getUTCMinutes();
+
+  let elapsedHours = 8;
+  let isCurrentShift = false;
+
+  if (shift && shift.start_time && shift.end_time) {
+    const startH = parseInt(shift.start_time.split(':')[0], 10);
+    const endH = parseInt(shift.end_time.split(':')[0], 10);
+    const durationHours = endH > startH ? (endH - startH) : (24 - startH + endH);
+
+    if (isToday) {
+      if (startH < endH) {
+        if (nowUtcHour >= startH && nowUtcHour < endH) {
+          isCurrentShift = true;
+          const mins = (nowUtcHour - startH) * 60 + nowUtcMin;
+          elapsedHours = Math.max(0.5, Number((mins / 60).toFixed(2)));
+        } else if (nowUtcHour < startH) {
+          elapsedHours = 0;
+        } else {
+          elapsedHours = durationHours;
+        }
+      } else {
+        if (nowUtcHour >= startH || nowUtcHour < endH) {
+          isCurrentShift = true;
+          const mins = nowUtcHour >= startH ? (nowUtcHour - startH) * 60 + nowUtcMin : (24 - startH + nowUtcHour) * 60 + nowUtcMin;
+          elapsedHours = Math.max(0.5, Number((mins / 60).toFixed(2)));
+        } else {
+          elapsedHours = durationHours;
+        }
+      }
+    } else {
+      elapsedHours = durationHours;
+    }
+  }
+
+  const activeHoursWithData = hourlyRows.filter(h => h.count > 0).length;
+  const effectiveHours = isCurrentShift ? elapsedHours : Math.max(1, activeHoursWithData || elapsedHours);
+  const actualRatePerHour = effectiveHours > 0 ? Math.round(actualCount / effectiveHours) : 0;
+  const rateDifference = actualRatePerHour - targetRate;
+  const paceStatus = rateDifference >= 0 ? 'ahead' : 'behind';
+
+  // Estimated Completion (ETA)
+  const remainingUnits = Math.max(0, targetCount - actualCount);
+  let etaMinutes = null;
+  let etaText = 'Target Achieved';
+
+  if (actualCount >= targetCount) {
+    etaText = 'Target Achieved (100% Complete)';
+    etaMinutes = 0;
+  } else if (actualRatePerHour > 0) {
+    etaMinutes = Math.round((remainingUnits / actualRatePerHour) * 60);
+    const h = Math.floor(etaMinutes / 60);
+    const m = etaMinutes % 60;
+    const durationStr = h > 0 ? `${h}h ${m}m remaining` : `${m}m remaining`;
+    
+    const projDate = new Date(Date.now() + etaMinutes * 60 * 1000);
+    const projHours = String(projDate.getUTCHours()).padStart(2, '0');
+    const projMins = String(projDate.getUTCMinutes()).padStart(2, '0');
+    etaText = `${durationStr} (est. ${projHours}:${projMins} UTC)`;
+  } else {
+    etaText = actualCount > 0 ? 'Pace Stalled (0 / hr)' : 'Awaiting Production Run';
+  }
+
   // Confidence distribution
   const confHigh = db.prepare(`SELECT count(*) as count ${eventQuery} AND confidence >= 0.95`).get(...params).count;
   const confMed = db.prepare(`SELECT count(*) as count ${eventQuery} AND confidence >= 0.90 AND confidence < 0.95`).get(...params).count;
@@ -108,7 +187,14 @@ function getShiftReport(shiftId, date = null, lineId = null) {
       voidedCount: totalVoidedRow.total,
       suspectedCount: totalSuspectedRow.total,
       totalEvents: totalEventsRow.total,
-      targetRatePerHour: target.target_rate_per_hour || 125.0,
+      targetRatePerHour: targetRate,
+      actualRatePerHour,
+      rateDifference,
+      paceStatus,
+      isCurrentShift,
+      remainingUnits,
+      etaMinutes,
+      etaText,
       alertCount
     },
     hourlyDistribution: hourlyRows,
