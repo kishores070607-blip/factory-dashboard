@@ -33,14 +33,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             <h3 class="card-title">${line.name || 'Line'} <span style="font-size: 0.875rem; color: var(--text-muted)">(${line.location || 'Unknown'})</span></h3>
             <span class="status-dot ${statusClass}" title="${line.status}"></span>
           </div>
-          <div class="d-flex justify-between mt-4">
-            <div>
-              <div class="text-muted" style="font-size: 0.875rem;">Total Today</div>
-              <div class="card-value" id="line-count-${line.line_id || line.id}">${line.total_count_today || line.countToday || 0}</div>
+          <div class="metric-grid metric-grid-2">
+            <div class="metric-tile">
+              <span class="metric-label">Total Today</span>
+              <div class="metric-val" id="line-count-${line.line_id || line.id}">${line.total_count_today || line.countToday || 0}</div>
             </div>
-            <div>
-              <div class="text-muted" style="font-size: 0.875rem;">Rolling Rate (last 60s)</div>
-              <div class="card-value" style="font-size: 1.5rem" id="line-rate-${line.line_id || line.id}">${line.rate_per_min || line.ratePerMinute || 0} /min</div>
+            <div class="metric-tile">
+              <span class="metric-label">Rate (Last 60s)</span>
+              <div class="metric-val" id="line-rate-${line.line_id || line.id}">${line.rate_per_min || line.ratePerMinute || 0} <span style="font-size: 0.85rem; font-weight: normal; color: var(--text-muted);">/min</span></div>
             </div>
           </div>
           <div class="mt-4 pt-4" style="border-top: 1px solid var(--border-color);">

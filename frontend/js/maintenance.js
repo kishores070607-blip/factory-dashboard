@@ -34,7 +34,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       const device = await window.API.getDevice(deviceId);
       const h = device.latestHealth || {};
 
-      document.getElementById('val-cam-status').textContent = h.camera_status || 'connected';
+      const camStatusEl = document.getElementById('val-cam-status');
+      const camStatus = h.camera_status || 'connected';
+      camStatusEl.textContent = camStatus;
+      camStatusEl.className = `badge ${camStatus === 'disconnected' ? 'danger' : (camStatus === 'unstable' ? 'warning' : 'success')}`;
+
       const camDot = document.getElementById('camera-status-dot');
       camDot.className = `status-dot ${h.camera_status === 'disconnected' ? 'status-critical' : 'status-ok'}`;
 

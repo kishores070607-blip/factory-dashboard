@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Device Maintenance & Diagnostics — Dashboard Platform</title>
+  <title>Device Maintenance &amp; Diagnostics — Dashboard Platform</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -14,86 +14,91 @@
     </a>
     <div class="nav-links" id="nav-links"></div>
     <div class="nav-right">
-      <span id="nav-username" style="font-weight: 500;"></span>
+      <span id="nav-username" style="font-weight: 600;"></span>
       <span id="nav-role" class="text-muted" style="font-size: 0.8rem;"></span>
       <button id="logout-btn" class="btn btn-secondary btn-sm">Logout</button>
     </div>
   </nav>
 
   <main class="container">
-    <div class="d-flex justify-between align-center mb-4">
+    <div class="d-flex justify-between align-center mb-4" style="flex-wrap: wrap; gap: 1rem;">
       <div>
-        <h2>Device Maintenance & Diagnostics</h2>
-        <p class="text-muted">Edge telemetry, thermal/resource health, camera status, and remote command dispatch (B6)</p>
+        <h2>Device Maintenance &amp; Diagnostics</h2>
+        <p class="text-muted" style="font-size: 0.875rem;">Edge telemetry, thermal/resource health, camera status, and remote command dispatch (B6)</p>
       </div>
-      <div style="display: flex; gap: 0.5rem;">
-        <select id="select-device" class="form-control" style="width: 200px;"></select>
+      <div class="d-flex align-center" style="gap: 0.5rem;">
+        <select id="select-device" class="form-control" style="min-width: 200px;"></select>
         <button id="btn-refresh" class="btn btn-secondary">Refresh</button>
       </div>
     </div>
 
-    <!-- Active Device Summary & Telemetry -->
+    <!-- Active Device Summary & Telemetry Cards -->
     <div class="grid mb-4">
       <!-- Camera & Pipeline Card -->
       <div class="card">
         <div class="card-header">
-          <h4 class="card-title">Camera & Inference Pipeline</h4>
+          <h4 class="card-title">Camera &amp; Vision Pipeline</h4>
           <span id="camera-status-dot" class="status-dot status-ok"></span>
         </div>
-        <div class="d-flex justify-between mt-4">
-          <div>
-            <div class="text-muted" style="font-size: 0.875rem;">Camera State</div>
-            <div class="card-value" style="font-size: 1.5rem;" id="val-cam-status">Connected</div>
+        
+        <div class="metric-grid">
+          <div class="metric-tile">
+            <span class="metric-label">Camera</span>
+            <div class="metric-val"><span id="val-cam-status" class="badge success">Connected</span></div>
           </div>
-          <div>
-            <div class="text-muted" style="font-size: 0.875rem;">Throughput</div>
-            <div class="card-value" style="font-size: 1.5rem;" id="val-fps">0 FPS</div>
+          <div class="metric-tile">
+            <span class="metric-label">Throughput</span>
+            <div class="metric-val" id="val-fps">0 FPS</div>
           </div>
-          <div>
-            <div class="text-muted" style="font-size: 0.875rem;">Inference Latency</div>
-            <div class="card-value" style="font-size: 1.5rem;" id="val-latency">0 ms</div>
+          <div class="metric-tile">
+            <span class="metric-label">Latency</span>
+            <div class="metric-val" id="val-latency">0 ms</div>
           </div>
         </div>
-        <div class="mt-4 pt-4" style="border-top: 1px solid var(--border-color); font-size: 0.85rem;">
-          <div><strong>Model Version:</strong> <span id="val-model-version" class="text-muted">-</span></div>
-          <div><strong>App Version:</strong> <span id="val-app-version" class="text-muted">-</span></div>
+
+        <div class="mt-2 pt-2" style="border-top: 1px solid var(--border-color); font-size: 0.8rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+          <div><span class="text-muted">Model:</span> <span id="val-model-version" style="font-family: monospace;">-</span></div>
+          <div><span class="text-muted">App:</span> <span id="val-app-version" style="font-family: monospace;">-</span></div>
         </div>
       </div>
 
-      <!-- Resource & Thermal Health -->
+      <!-- Resource & Thermal Health Card -->
       <div class="card">
         <div class="card-header">
-          <h4 class="card-title">Edge Compute & Thermals</h4>
+          <h4 class="card-title">Edge Compute &amp; Thermals</h4>
           <span id="temp-badge" class="badge success">Normal</span>
         </div>
-        <div class="d-flex justify-between mt-4">
-          <div>
-            <div class="text-muted" style="font-size: 0.875rem;">CPU Temperature</div>
-            <div class="card-value" style="font-size: 1.5rem;" id="val-temp">0 &deg;C</div>
+
+        <div class="metric-grid">
+          <div class="metric-tile">
+            <span class="metric-label">CPU Temp</span>
+            <div class="metric-val" id="val-temp">0 &deg;C</div>
           </div>
-          <div>
-            <div class="text-muted" style="font-size: 0.875rem;">CPU Usage</div>
-            <div class="card-value" style="font-size: 1.5rem;" id="val-cpu">0%</div>
+          <div class="metric-tile">
+            <span class="metric-label">CPU Usage</span>
+            <div class="metric-val" id="val-cpu">0%</div>
           </div>
-          <div>
-            <div class="text-muted" style="font-size: 0.875rem;">RAM Usage</div>
-            <div class="card-value" style="font-size: 1.5rem;" id="val-mem">0%</div>
+          <div class="metric-tile">
+            <span class="metric-label">RAM Usage</span>
+            <div class="metric-val" id="val-mem">0%</div>
           </div>
         </div>
-        <div class="mt-4 pt-4" style="border-top: 1px solid var(--border-color); font-size: 0.85rem;">
-          <div><strong>Upload Queue Depth:</strong> <span id="val-queue" style="font-weight: bold;">0</span> pending</div>
-          <div><strong>Last Crossing Event:</strong> <span id="val-last-event" class="text-muted">-</span></div>
+
+        <div class="mt-2 pt-2" style="border-top: 1px solid var(--border-color); font-size: 0.8rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+          <div><span class="text-muted">Queue Depth:</span> <strong id="val-queue">0</strong> pending</div>
+          <div><span class="text-muted">Last Event:</span> <span id="val-last-event" class="text-muted">-</span></div>
         </div>
       </div>
 
-      <!-- Command Dispatch Panel -->
+      <!-- Command Dispatch Panel Card -->
       <div class="card">
         <div class="card-header">
-          <h4 class="card-title">Remote Diagnostics Command</h4>
+          <h4 class="card-title">Remote Diagnostics</h4>
+          <span class="badge" style="background: rgba(2, 132, 199, 0.15); color: #38bdf8; border: 1px solid rgba(2, 132, 199, 0.3);">Control</span>
         </div>
-        <p class="text-muted mb-4" style="font-size: 0.85rem;">Enqueue a remote execution instruction for this edge unit over the REST/WebSocket channel.</p>
-        <div class="form-group">
-          <label class="form-label">Instruction Type</label>
+        <p class="text-muted mb-2" style="font-size: 0.8rem;">Enqueue instructions for this edge unit over the REST/WebSocket command channel.</p>
+        <div class="form-group" style="margin-bottom: 0.75rem;">
+          <label class="form-label">Instruction</label>
           <select id="cmd-type" class="form-control">
             <option value="reset_diagnostics">reset_diagnostics — Clear local telemetry buffer</option>
             <option value="reload_config">reload_config — Pull approved configuration</option>
@@ -101,14 +106,16 @@
           </select>
         </div>
         <button id="btn-dispatch-cmd" class="btn btn-primary" style="width: 100%;">Dispatch to Edge</button>
-        <div id="cmd-msg" class="text-muted text-center mt-4" style="font-size: 0.8rem;"></div>
+        <div id="cmd-msg" class="text-muted text-center mt-2" style="font-size: 0.75rem; min-height: 1.2rem;"></div>
       </div>
     </div>
 
     <!-- Telemetry History & Commands Table -->
-    <div class="grid" style="grid-template-columns: 1fr 1fr;">
+    <div class="grid grid-2col">
       <div class="card">
-        <h4 class="card-title mb-4">Recent Telemetry Samples</h4>
+        <div class="card-header">
+          <h4 class="card-title">Recent Telemetry Samples</h4>
+        </div>
         <div class="table-container" style="max-height: 320px;">
           <table id="table-telemetry">
             <thead>
@@ -126,14 +133,16 @@
       </div>
 
       <div class="card">
-        <h4 class="card-title mb-4">Command Dispatch & Acknowledgment Log</h4>
+        <div class="card-header">
+          <h4 class="card-title">Command Execution Log</h4>
+        </div>
         <div class="table-container" style="max-height: 320px;">
           <table id="table-commands">
             <thead>
               <tr>
-                <th>Command ID</th>
+                <th>ID</th>
                 <th>Device</th>
-                <th>Type</th>
+                <th>Command Type</th>
                 <th>Status</th>
                 <th>Acknowledged</th>
               </tr>

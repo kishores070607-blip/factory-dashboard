@@ -78,18 +78,18 @@
           <div class="card-header">
             <h4 class="card-title">Quality & Void Discrepancies</h4>
           </div>
-          <div class="d-flex justify-between mt-4">
-            <div>
-              <div class="text-muted" style="font-size: 0.875rem;">Manually Voided</div>
-              <div class="card-value" style="color: #f87171;" id="val-shift-voided">0</div>
+          <div class="metric-grid">
+            <div class="metric-tile">
+              <span class="metric-label">Voided</span>
+              <div class="metric-val" style="color: #f87171;" id="val-shift-voided">0</div>
             </div>
-            <div>
-              <div class="text-muted" style="font-size: 0.875rem;">Suspected Events</div>
-              <div class="card-value" style="color: #fbbf24;" id="val-shift-suspected">0</div>
+            <div class="metric-tile">
+              <span class="metric-label">Suspected</span>
+              <div class="metric-val" style="color: #fbbf24;" id="val-shift-suspected">0</div>
             </div>
-            <div>
-              <div class="text-muted" style="font-size: 0.875rem;">Alert Incidents</div>
-              <div class="card-value" id="val-shift-alerts">0</div>
+            <div class="metric-tile">
+              <span class="metric-label">Alerts</span>
+              <div class="metric-val" id="val-shift-alerts">0</div>
             </div>
           </div>
         </div>
@@ -98,9 +98,11 @@
           <div class="card-header">
             <h4 class="card-title">Target Run Rate</h4>
           </div>
-          <div class="text-muted" style="font-size: 0.875rem;">Hourly Target</div>
-          <div class="card-value" id="val-shift-rate">125 / hr</div>
-          <p class="text-muted" style="font-size: 0.8rem;">Required pace to achieve planned shift volume</p>
+          <div class="metric-tile" style="margin-top: 1rem;">
+            <span class="metric-label">Hourly Target Rate</span>
+            <div class="metric-val" id="val-shift-rate">125 / hr</div>
+          </div>
+          <p class="text-muted mt-2" style="font-size: 0.8rem; text-align: center;">Required pace to achieve planned volume</p>
         </div>
       </div>
 
@@ -112,20 +114,20 @@
       <div class="card">
         <h4 class="card-title mb-4">AI Model Confidence Distribution</h4>
         <div class="grid">
-          <div style="background: rgba(16,185,129,0.05); padding: 1rem; border-radius: 0.5rem; border: 1px solid rgba(16,185,129,0.2);">
+          <div class="metric-tile" style="padding: 1rem; text-align: left;">
             <span class="badge success">High Confidence (&ge; 95%)</span>
-            <div class="card-value mt-4" style="color: #34d399;" id="conf-high">0</div>
-            <div class="text-muted" style="font-size: 0.8rem;">Clear, unobstructed crossing events</div>
+            <div class="metric-val mt-2" style="color: #34d399; font-size: 1.75rem;" id="conf-high">0</div>
+            <div class="text-muted mt-2" style="font-size: 0.8rem;">Clear, unobstructed crossing events</div>
           </div>
-          <div style="background: rgba(245,158,11,0.05); padding: 1rem; border-radius: 0.5rem; border: 1px solid rgba(245,158,11,0.2);">
+          <div class="metric-tile" style="padding: 1rem; text-align: left;">
             <span class="badge warning">Medium Confidence (90 - 95%)</span>
-            <div class="card-value mt-4" style="color: #fbbf24;" id="conf-med">0</div>
-            <div class="text-muted" style="font-size: 0.8rem;">Partial edge glare or shadow presence</div>
+            <div class="metric-val mt-2" style="color: #fbbf24; font-size: 1.75rem;" id="conf-med">0</div>
+            <div class="text-muted mt-2" style="font-size: 0.8rem;">Partial edge glare or shadow presence</div>
           </div>
-          <div style="background: rgba(239,68,68,0.05); padding: 1rem; border-radius: 0.5rem; border: 1px solid rgba(239,68,68,0.2);">
+          <div class="metric-tile" style="padding: 1rem; text-align: left;">
             <span class="badge danger">Suspected / Low (&lt; 90%)</span>
-            <div class="card-value mt-4" style="color: #f87171;" id="conf-low">0</div>
-            <div class="text-muted" style="font-size: 0.8rem;">Flagged for supervisor evidence review</div>
+            <div class="metric-val mt-2" style="color: #f87171; font-size: 1.75rem;" id="conf-low">0</div>
+            <div class="text-muted mt-2" style="font-size: 0.8rem;">Flagged for supervisor evidence review</div>
           </div>
         </div>
       </div>
