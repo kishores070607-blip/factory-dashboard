@@ -73,6 +73,14 @@ window.API = {
     return this.request('/api/events' + this.buildQuery(filters));
   },
 
+  async getPartClasses() {
+    try {
+      return await this.request('/api/events/classes');
+    } catch (e) {
+      return ['bearing-D', 'gasket-C', 'widget-A', 'widget-B'];
+    }
+  },
+
   async voidEvent(eventId, reason) {
     return this.request('/api/corrections/void', {
       method: 'POST',

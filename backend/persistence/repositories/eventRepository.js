@@ -64,20 +64,28 @@ module.exports = {
       params.push(filters.deviceId);
     }
     if (filters.partClass) {
-      query += ' AND part_class = ?';
-      params.push(filters.partClass);
+      query += ' AND LOWER(part_class) LIKE ?';
+      params.push(`%${filters.partClass.toLowerCase().trim()}%`);
     }
     if (filters.status) {
       query += ' AND status = ?';
       params.push(filters.status);
     }
     if (filters.from) {
+      let fromVal = filters.from;
+      if (!fromVal.includes('T')) {
+        fromVal = `${fromVal}T00:00:00.000Z`;
+      }
       query += ' AND event_time >= ?';
-      params.push(filters.from);
+      params.push(fromVal);
     }
     if (filters.to) {
+      let toVal = filters.to;
+      if (!toVal.includes('T')) {
+        toVal = `${toVal}T23:59:59.999Z`;
+      }
       query += ' AND event_time <= ?';
-      params.push(filters.to);
+      params.push(toVal);
     }
 
     const countRow = db.prepare(`SELECT count(*) as total ${query}`).get(...params);
@@ -93,6 +101,17 @@ module.exports = {
     const data = db.prepare(`SELECT * ${query}`).all(...params);
 
     return { data, total };
+  },
+
+  /**
+   * Returns list of unique part classes known to the system.
+   * @returns {string[]}
+   */
+  getDistinctPartClasses() {
+    const rows = db.prepare('SELECT DISTINCT part_class FROM count_events WHERE part_class IS NOT NULL AND part_class != ""').all();
+    const defaults = ['bearing-D', 'gasket-C', 'widget-A', 'widget-B'];
+    const set = new Set([...defaults, ...rows.map(r => r.part_class)]);
+    return Array.from(set).sort();
   },
 
   /**

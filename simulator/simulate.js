@@ -72,6 +72,13 @@ async function sendRequest(path, payload = null, method = 'POST') {
     }
 }
 
+function getCurrentShiftId() {
+    const hour = new Date().getUTCHours();
+    if (hour >= 6 && hour < 14) return 'SHIFT-1';
+    if (hour >= 14 && hour < 22) return 'SHIFT-2';
+    return 'SHIFT-3';
+}
+
 async function sendEvent(device, isDuplicate = false, isDelayed = false) {
     const eventId = isDuplicate && device.lastEventId ? device.lastEventId : crypto.randomUUID();
     if (!isDuplicate) device.lastEventId = eventId;
@@ -81,7 +88,7 @@ async function sendEvent(device, isDuplicate = false, isDelayed = false) {
         device_id: device.id,
         line_id: device.line,
         batch_id: device.line === 'line-1' ? 'BATCH-260730-A' : 'BATCH-260730-B',
-        shift_id: 'SHIFT-1',
+        shift_id: getCurrentShiftId(),
         event_time: new Date().toISOString(),
         event_sequence: device.sequence++,
         part_class: partClasses[Math.floor(Math.random() * partClasses.length)],

@@ -31,6 +31,14 @@
       </div>
     </div>
     
+    <!-- Filter Header & Options (B4) -->
+    <div class="d-flex justify-between align-center mb-2">
+      <div class="d-flex align-center" style="gap: 0.5rem;">
+        <span class="badge warning" style="font-size: 0.75rem; letter-spacing: 0.05em;">FILTER &amp; SEARCH CONTROLS</span>
+        <span class="text-muted" style="font-size: 0.825rem;">Refine detection events by line, device, part class, status, or date range</span>
+      </div>
+    </div>
+    
     <div class="filter-bar" id="filter-form">
       <div class="filter-item">
         <label class="form-label">Line</label>
@@ -55,15 +63,31 @@
       </div>
       <div class="filter-item">
         <label class="form-label">Part Class</label>
-        <input type="text" id="filter-class" class="form-control" placeholder="e.g. bearing-D">
+        <input type="text" id="filter-class" list="parts-datalist" class="form-control" placeholder="Search part (e.g. gasket, widget)..." autocomplete="off">
+        <datalist id="parts-datalist">
+          <option value="bearing-D">
+          <option value="gasket-C">
+          <option value="widget-A">
+          <option value="widget-B">
+        </datalist>
       </div>
-      <div class="filter-item">
-        <label class="form-label">From</label>
-        <input type="datetime-local" id="filter-from" class="form-control">
+      <div class="filter-item" style="min-width: 150px;">
+        <label class="form-label">Time Range</label>
+        <select id="filter-time-preset" class="form-control">
+          <option value="all">All Time</option>
+          <option value="15m">Last 15 Minutes</option>
+          <option value="1h">Last 1 Hour</option>
+          <option value="today">Today (Midnight to Now)</option>
+          <option value="custom">Custom Date Range</option>
+        </select>
       </div>
-      <div class="filter-item">
-        <label class="form-label">To</label>
-        <input type="datetime-local" id="filter-to" class="form-control">
+      <div class="filter-item" id="filter-date-from-container">
+        <label class="form-label">From Date</label>
+        <input type="date" id="filter-from" class="form-control">
+      </div>
+      <div class="filter-item" id="filter-date-to-container">
+        <label class="form-label">To Date</label>
+        <input type="date" id="filter-to" class="form-control">
       </div>
       <div class="d-flex" style="gap: 0.5rem; flex: 0 0 auto; align-self: flex-end; padding-bottom: 0.1rem;">
         <button id="btn-search" class="btn btn-primary">Search</button>

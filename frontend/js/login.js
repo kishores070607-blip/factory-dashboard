@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     errorDiv.classList.add('hidden');
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+    const username = (document.getElementById('username').value || '').trim();
+    const password = (document.getElementById('password').value || '').trim();
     const btn = form.querySelector('button');
     btn.disabled = true;
     btn.textContent = 'Logging in...';

@@ -8,12 +8,12 @@ const shiftBatchRepository = require('../persistence/repositories/shiftBatchRepo
  * @param {string} lineId optional line filter
  */
 function getShiftReport(shiftId, date = null, lineId = null) {
-  const shift = shiftBatchRepository.findShiftById(shiftId) || {
+  const shift = shiftId ? (shiftBatchRepository.findShiftById(shiftId) || {
     shift_id: shiftId,
     name: shiftId,
     start_time: '06:00',
     end_time: '14:00'
-  };
+  }) : null;
 
   const targetDate = date || new Date().toISOString().split('T')[0];
 
@@ -29,6 +29,11 @@ function getShiftReport(shiftId, date = null, lineId = null) {
     params.push(lineId);
   }
 
+  if (shift && shift.shift_id) {
+    eventQuery += ' AND (shift_id = ? OR shift_id IS NULL)';
+    params.push(shift.shift_id);
+  }
+
   // Count accepted, suspected, manually_voided
   const totalAcceptedRow = db.prepare(`SELECT COALESCE(sum(quantity), 0) as total ${eventQuery} AND status = 'accepted'`).get(...params);
   const totalVoidedRow = db.prepare(`SELECT count(*) as total ${eventQuery} AND status = 'manually_voided'`).get(...params);
@@ -36,7 +41,7 @@ function getShiftReport(shiftId, date = null, lineId = null) {
   const totalEventsRow = db.prepare(`SELECT count(*) as total ${eventQuery}`).get(...params);
 
   // Target comparison
-  const target = (lineId ? shiftBatchRepository.findTargetForLineAndShift(lineId, shiftId) : null) || {
+  const target = (lineId && shift ? shiftBatchRepository.findTargetForLineAndShift(lineId, shift.shift_id) : null) || {
     target_quantity: 1000,
     target_rate_per_hour: 125.0
   };
@@ -46,12 +51,39 @@ function getShiftReport(shiftId, date = null, lineId = null) {
   const completionPct = targetCount > 0 ? Number(((actualCount / targetCount) * 100).toFixed(1)) : 0;
 
   // Hourly throughput breakdown
-  const hourlyRows = db.prepare(`
+  const rawHourlyRows = db.prepare(`
     SELECT strftime('%H', event_time) as hour, sum(quantity) as count
     ${eventQuery} AND status = 'accepted'
     GROUP BY strftime('%H', event_time)
     ORDER BY hour ASC
   `).all(...params);
+
+  const hourlyMap = new Map();
+  rawHourlyRows.forEach(r => hourlyMap.set(r.hour, r.count));
+
+  // Determine full hour sequence for the shift
+  let hoursToDisplay = [];
+  if (shift && shift.start_time && shift.end_time) {
+    const startH = parseInt(shift.start_time.split(':')[0], 10);
+    const endH = parseInt(shift.end_time.split(':')[0], 10);
+    if (startH < endH) {
+      for (let h = startH; h < endH; h++) {
+        hoursToDisplay.push(String(h).padStart(2, '0'));
+      }
+    } else {
+      for (let h = startH; h < 24; h++) hoursToDisplay.push(String(h).padStart(2, '0'));
+      for (let h = 0; h < endH; h++) hoursToDisplay.push(String(h).padStart(2, '0'));
+    }
+  } else if (rawHourlyRows.length > 0) {
+    hoursToDisplay = rawHourlyRows.map(r => r.hour);
+  } else {
+    hoursToDisplay = ['06', '07', '08', '09', '10', '11', '12', '13'];
+  }
+
+  const hourlyRows = hoursToDisplay.map(hour => ({
+    hour,
+    count: hourlyMap.get(hour) || 0
+  }));
 
   // Confidence distribution
   const confHigh = db.prepare(`SELECT count(*) as count ${eventQuery} AND confidence >= 0.95`).get(...params).count;

@@ -75,6 +75,20 @@ router.post('/', handleCountIngest);
 router.post('/count', handleCountIngest);
 
 /**
+ * Returns available part classes for autocomplete.
+ * GET /classes
+ */
+router.get('/classes', requireAuth, (req, res) => {
+    try {
+        const classes = eventRepository.getDistinctPartClasses();
+        return res.json(classes);
+    } catch (error) {
+        console.error('Error fetching part classes:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+/**
  * Event explorer endpoint: GET /
  * Filters: line, device, class, status, from, to, page, pageSize
  */

@@ -60,6 +60,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Load Shift Report
   async function loadShiftReport() {
+    const btn = document.getElementById('btn-load-shift');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Generating...';
+    }
+
     const shiftId = document.getElementById('select-shift').value;
     const lineId = document.getElementById('select-shift-line').value;
     const date = document.getElementById('select-shift-date').value;
@@ -85,16 +91,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       const chartEl = document.getElementById('chart-hourly');
       chartEl.innerHTML = '';
       if (!report.hourlyDistribution || report.hourlyDistribution.length === 0) {
-        chartEl.innerHTML = '<div class="text-muted text-center" style="width: 100%;">No hourly event data recorded for this window.</div>';
+        chartEl.innerHTML = '<div class="text-muted text-center" style="width: 100%; padding: 2rem;">No hourly event data recorded for this window.</div>';
       } else {
-        const maxVal = Math.max(...report.hourlyDistribution.map(h => h.count), 1);
+        const counts = report.hourlyDistribution.map(h => h.count);
+        const maxVal = Math.max(...counts, 1);
         report.hourlyDistribution.forEach(h => {
           const col = document.createElement('div');
           col.className = 'bar-column';
-          const heightPct = Math.max((h.count / maxVal) * 100, 5);
+          const heightPct = h.count > 0 ? Math.round((h.count / maxVal) * 78) + 4 : 2;
           col.innerHTML = `
             <div class="bar-val">${h.count}</div>
-            <div class="bar-fill" style="height: ${heightPct}%;"></div>
+            <div class="bar-fill" style="height: ${heightPct}%;" title="${h.hour}:00 — ${h.count} parts accepted"></div>
             <div class="bar-label">${h.hour}:00</div>
           `;
           chartEl.appendChild(col);
@@ -102,6 +109,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     } catch (err) {
       console.error('Failed to load shift report', err);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Generate Report';
+      }
     }
   }
 
@@ -139,6 +151,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('btn-load-shift').addEventListener('click', loadShiftReport);
   document.getElementById('btn-load-batch').addEventListener('click', loadBatchReport);
+
+  // Auto-refresh when selectors change for responsive UX
+  document.getElementById('select-shift').addEventListener('change', loadShiftReport);
+  document.getElementById('select-shift-line').addEventListener('change', loadShiftReport);
+  document.getElementById('select-shift-date').addEventListener('change', loadShiftReport);
+  document.getElementById('select-batch').addEventListener('change', loadBatchReport);
 
   // Initial load
   loadShiftReport();

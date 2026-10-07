@@ -20,9 +20,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function initFilters() {
     try {
-      const [lines, devices] = await Promise.all([
+      const [lines, devices, partClasses] = await Promise.all([
         window.API.getLines(),
-        window.API.getDevices()
+        window.API.getDevices(),
+        window.API.getPartClasses()
       ]);
       const lineSelect = document.getElementById('filter-line');
       lines.forEach(l => {
@@ -38,19 +39,68 @@ document.addEventListener('DOMContentLoaded', async () => {
         opt.textContent = d.name || d.device_id || d.id;
         deviceSelect.appendChild(opt);
       });
+
+      // Populate autocomplete datalist for part classes
+      const datalist = document.getElementById('parts-datalist');
+      if (datalist && Array.isArray(partClasses)) {
+        datalist.innerHTML = '';
+        partClasses.forEach(cls => {
+          const opt = document.createElement('option');
+          opt.value = cls;
+          datalist.appendChild(opt);
+        });
+      }
     } catch (e) {
       console.error('Failed to load filters', e);
     }
   }
 
+  // Handle Quick Time Presets
+  const timePresetSelect = document.getElementById('filter-time-preset');
+  const dateFromInput = document.getElementById('filter-from');
+  const dateToInput = document.getElementById('filter-to');
+
+  if (timePresetSelect) {
+    timePresetSelect.addEventListener('change', () => {
+      const val = timePresetSelect.value;
+      if (val === 'all') {
+        dateFromInput.value = '';
+        dateToInput.value = '';
+      } else if (val === 'today') {
+        const todayStr = new Date().toISOString().split('T')[0];
+        dateFromInput.value = todayStr;
+        dateToInput.value = todayStr;
+      } else if (val === '15m' || val === '1h') {
+        dateFromInput.value = '';
+        dateToInput.value = '';
+      }
+      currentPage = 1;
+      loadEvents();
+    });
+  }
+
   function getFilters() {
+    let from = dateFromInput ? dateFromInput.value : '';
+    let to = dateToInput ? dateToInput.value : '';
+
+    const preset = timePresetSelect ? timePresetSelect.value : 'all';
+    if (preset === '15m') {
+      from = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+      to = '';
+    } else if (preset === '1h') {
+      from = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      to = '';
+    } else if (preset === 'today' && !from) {
+      from = new Date().toISOString().split('T')[0];
+    }
+
     return {
       line: document.getElementById('filter-line').value,
       device: document.getElementById('filter-device').value,
       status: document.getElementById('filter-status').value,
-      class: document.getElementById('filter-class').value,
-      from: document.getElementById('filter-from').value,
-      to: document.getElementById('filter-to').value,
+      class: (document.getElementById('filter-class').value || '').trim(),
+      from,
+      to,
       page: currentPage,
       pageSize: 25
     };
@@ -158,7 +208,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     currentPage++; loadEvents();
   });
 
-  initFilters().then(loadEvents);
+  const inputClass = document.getElementById('filter-class');
+  if (inputClass) {
+    inputClass.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        currentPage = 1;
+        loadEvents();
+      }
+    });
+    inputClass.addEventListener('change', () => {
+      currentPage = 1;
+      loadEvents();
+    });
+  }
 
   window.WS.onMessage('new_event', (payload) => {
     if (currentPage === 1) {
@@ -167,6 +229,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (filters.line && filters.line !== payload.line_id) match = false;
       if (filters.device && filters.device !== payload.device_id) match = false;
       if (filters.status && filters.status !== payload.status) match = false;
+      if (filters.class) {
+        const pClass = (payload.part_class || '').toLowerCase();
+        if (!pClass.includes(filters.class.toLowerCase())) {
+          match = false;
+        }
+      }
       
       if (match) {
         const tr = document.createElement('template');

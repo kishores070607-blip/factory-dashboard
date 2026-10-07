@@ -370,6 +370,7 @@ tbody tr:last-child td {
   border-radius: var(--radius);
   outline: none;
   font-size: 0.875rem;
+  color-scheme: dark;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
@@ -545,14 +546,19 @@ select.form-control {
 .bar-chart {
   display: flex;
   align-items: flex-end;
-  gap: 0.5rem;
-  height: 180px;
-  padding-top: 1rem;
-  border-bottom: 1px solid var(--border-color);
+  justify-content: flex-start;
+  gap: 1.25rem;
+  height: 220px;
+  padding: 1.5rem 1.25rem 0.5rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .bar-column {
-  flex: 1;
+  flex: 0 0 52px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -561,29 +567,34 @@ select.form-control {
 }
 
 .bar-fill {
-  width: 100%;
+  width: 36px;
+  max-width: 36px;
   background-color: var(--color-primary);
-  border-radius: 2px 2px 0 0;
+  border-radius: 4px 4px 0 0;
   min-height: 4px;
-  transition: height 0.2s;
+  transition: height 0.3s ease, background-color 0.15s;
+  cursor: pointer;
 }
 
 .bar-fill:hover {
   background-color: var(--color-primary-hover);
+  filter: brightness(1.1);
 }
 
 .bar-label {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
-  margin-top: 0.5rem;
+  margin-top: 0.6rem;
   font-variant-numeric: tabular-nums;
+  font-weight: 500;
 }
 
 .bar-val {
-  font-size: 0.7rem;
+  font-size: 0.725rem;
   color: var(--text-main);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.35rem;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ==========================================================================
